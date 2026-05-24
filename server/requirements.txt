@@ -3,3 +3,7 @@ uvicorn==0.47.0
 httpx==0.28.1
 mysql-connector-python==9.7.0
 langchain-groq==1.1.2
+python-dotenv==1.1.1
+scikit-learn==1.6.1
+langchain==1.2.15
+groq==0.37.1

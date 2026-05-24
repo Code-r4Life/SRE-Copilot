@@ -1,0 +1,3 @@
+from intelligence.statistical_detector import run_statistical_detection
+
+run_statistical_detection()

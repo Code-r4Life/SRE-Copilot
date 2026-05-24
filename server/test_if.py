@@ -1,0 +1,3 @@
+from intelligence.isolation_forest import run_isolation_forest_detection
+
+run_isolation_forest_detection()

@@ -1,0 +1,3 @@
+from intelligence.incident_engine import run_incident_engine
+
+run_incident_engine()

@@ -7,6 +7,8 @@ import {
 import PageHeader from "../components/ui/PageHeader";
 import { clsx } from "clsx";
 
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
 const METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"];
 const INTERVALS = [
   { label: "Every 5s",   value: 5 },
@@ -161,7 +163,7 @@ export default function AddAPI() {
 
   const fetchApis = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/apis");
+      const res = await fetch(`${BASE_URL}/api/apis`);
       const data = await res.json();
       setLiveApis((prev) =>
         data.map((newApi) => {
@@ -184,7 +186,7 @@ export default function AddAPI() {
     setLiveApis((prev) => prev.map((a) => a.id === apiId ? { ...a, rcaLoading: true } : a));
 
     try {
-      const incidentsRes = await fetch("http://127.0.0.1:8000/api/incidents");
+      const incidentsRes = await fetch(`${BASE_URL}/api/incidents`);
       const incidents = await incidentsRes.json();
       const latestIncident = incidents.find((i) => i.api_id === apiId);
 
@@ -201,7 +203,7 @@ export default function AddAPI() {
         return;
       }
 
-      const rcaRes = await fetch(`http://127.0.0.1:8000/api/rca/${latestIncident.id}`);
+      const rcaRes = await fetch(`${BASE_URL}/api/rca/${latestIncident.id}`);
       const rca = await rcaRes.json();
       setSelectedRca(rca.analysis);
       setSelectedApiName(existingApi?.name || "");
@@ -213,7 +215,7 @@ export default function AddAPI() {
 
   const stopMonitoring = async (id) => {
     try {
-      await fetch(`http://127.0.0.1:8000/api/stop/${id}`, { method: "POST" });
+      await fetch(`${BASE_URL}/api/stop/${id}`, { method: "POST" });
       setLiveApis((prev) => prev.map((a) => a.id === id ? { ...a, isStopped: true } : a));
       setAnyStopped(true);
     } catch {}
@@ -244,7 +246,7 @@ export default function AddAPI() {
     const payload = { name: form.name.trim(), endpoint: form.endpoint.trim(), method: form.method, interval: Number(form.interval), headers: parsedHeaders, body: form.body };
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/monitor", {
+      const res = await fetch(`${BASE_URL}/api/monitor`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -190,9 +190,9 @@ def get_recent_request_logs(api_id: int) -> list[dict]:
 # ==============================
 
 llm = ChatGroq(
-    model="llama-3.1-8b-instant",
+    model="llama-3.3-70b-versatile",
     api_key=GROQ_API_KEY,
-    temperature=0.3,
+    temperature=0.2,
     max_tokens=512
 )
 

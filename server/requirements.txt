@@ -7,3 +7,4 @@ python-dotenv==1.1.1
 scikit-learn==1.6.1
 langchain==1.2.15
 groq==0.37.1
+pandas==2.2.3

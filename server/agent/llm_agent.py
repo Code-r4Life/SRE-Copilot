@@ -50,7 +50,7 @@ def get_incident_details(incident_id: int) -> dict:
 @tool
 def get_recent_anomalies(api_id: int) -> list[dict]:
     """
-    Fetches the 5 most recent anomalies for a given API ID.
+    Fetches the 3 most recent anomalies for a given API ID.
     Returns anomaly type, severity, message, and detection timestamp.
     Use this to understand what signals preceded the incident.
     """
@@ -62,7 +62,7 @@ def get_recent_anomalies(api_id: int) -> list[dict]:
             FROM anomalies
             WHERE api_id = %s
             ORDER BY detected_at DESC
-            LIMIT 5
+            LIMIT 3
             """,
             (api_id,)
         )
@@ -171,7 +171,7 @@ def get_recent_request_logs(api_id: int) -> list[dict]:
     try:
         cursor.execute(
             """SELECT status_code, latency_ms, success, error_message, timestamp FROM request_logs WHERE api_id = %s
-               ORDER BY timestamp DESC LIMIT 10
+               ORDER BY timestamp DESC LIMIT 20
             """,
             (api_id,)
         )
@@ -201,9 +201,50 @@ llm = ChatGroq(
 # ==============================
 
 SYSTEM_PROMPT = """
-You are an expert Site Reliability Engineer (SRE) and API infrastructure specialist.
+You are a senior Site Reliability Engineer (SRE) specializing in API infrastructure, distributed systems, operational debugging, and incident response.
 
-Your job is to perform a thorough Root Cause Analysis (RCA) on API production incidents.
+Your task is to perform realistic production-grade Root Cause Analysis (RCA) for API incidents.
+
+IMPORTANT RULES:
+
+- Focus on REAL operational behavior.
+- Focus on:
+  - latency spikes
+  - HTTP failures
+  - DNS resolution failures
+  - timeout patterns
+  - server instability
+  - repeated request failures
+  - abnormal traffic behavior
+  - operational degradation
+  - request-level anomalies
+
+- Detector labels such as:
+  - ISOLATION_FOREST_ANOMALY
+  - HIGH_FAILURE_RATE
+  - HIGH_LATENCY
+
+  are ONLY detection indicators.
+
+- The anomaly detector itself is NOT the root cause.
+- NEVER explain the ML model unless explicitly asked.
+- Infer the REAL infrastructure or API issue using:
+  - logs
+  - latency metrics
+  - request failures
+  - operational evidence
+  - status codes
+  - behavioral patterns
+
+VERY IMPORTANT:
+- Do NOT give vague or generic explanations.
+- Base conclusions ONLY on operational evidence provided.
+- If evidence strongly suggests a likely cause, confidently state it.
+- Avoid excessive hedging like:
+  - "could be"
+  - "might be"
+  - "possibly"
+unless uncertainty is truly unavoidable.
 
 You have access to the following tools:
 - get_incident_details    → fetch incident + API metadata
@@ -212,10 +253,13 @@ You have access to the following tools:
 - get_latency_stats       → fetch latency and failure rate statistics
 - get_recent_request_logs → fetch latest operational logs
 
-Always call ALL tools to gather full context before writing your analysis.
-Be concise, technical, and actionable.
+You MUST use ALL tools before generating conclusions.
 
-Structure your final response exactly as:
+Your analysis should sound like a real SRE postmortem investigation.
+
+Format your response in professional markdown.
+
+Structure EXACTLY as:
 
 1. Root Cause Analysis
 2. Probable Technical Reasons
@@ -223,6 +267,14 @@ Structure your final response exactly as:
 4. Recommended Fixes
 5. Prevention Strategies
 6. Severity Assessment
+
+ADDITIONAL REQUIREMENTS:
+- Mention actual observed failure patterns.
+- Mention actual latency behavior if available.
+- Mention actual status codes if available.
+- Mention operational impact clearly.
+- Keep responses concise but technically strong.
+- Sound confident, analytical, and production-oriented.
 """
 
 agent = create_agent(
@@ -259,7 +311,7 @@ def run_llm_agent(incident_id: int) -> dict:
         analysis = ""
         for msg in reversed(messages):
             if hasattr(msg, "content") and msg.content:
-                analysis = msg.content
+                analysis = str(msg.content)
                 break
 
         print("\n===== AI RCA =====\n")

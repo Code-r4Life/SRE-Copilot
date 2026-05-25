@@ -96,16 +96,17 @@ def run_isolation_forest_detection():
                 "ISOLATION_FOREST_ANOMALY",
                 severity,
                 f"""
-                Isolation Forest anomaly detected.
+                    Abnormal API behavior detected.
 
-                Latency:
-                {row['latency_ms']}ms
+                    Observed operational symptoms:
+                    - Elevated latency detected
+                    - Request instability observed
+                    - Behavioral deviation from normal API traffic
 
-                Status:
-                {row['status_code']}
-
-                Anomaly Score:
-                {round(row['anomaly_score'],4)}
+                    Metrics:
+                    - Latency: {row['latency_ms']}ms
+                    - Status Code: {row['status_code']}
+                    - Anomaly Score: {round(row['anomaly_score'],4)}
                 """
             )
         )

@@ -32,7 +32,7 @@ export default function Navbar({ onMenuClick }) {
         </div>
 
         {/* Notifications */}
-        <div className="relative">
+        <div className="relative cursor-pointer">
           <button
             onClick={() => setNotifOpen(!notifOpen)}
             className="relative p-2 rounded-xl text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 transition-colors"
